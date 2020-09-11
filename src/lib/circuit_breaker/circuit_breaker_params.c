@@ -162,7 +162,7 @@ PARAM_DEFINE_INT32(CBRK_BUZZER, 0);
  * @category Developer
  * @group Circuit Breaker
  */
-PARAM_DEFINE_INT32(CBRK_USB_CHK, 0);
+PARAM_DEFINE_INT32(CBRK_USB_CHK, 201607);
 
 /**
  * Circuit breaker for position error check
