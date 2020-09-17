@@ -79,7 +79,7 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 		return math::constrain(_last_output, -1.0f, 1.0f);
 	}
 
-	float k_d = 0.12;
+	float k_d = _k_ff;
 
 	/* Calculate the error */
 	float pitch_error = ctl_data.pitch_setpoint - ctl_data.pitch;
