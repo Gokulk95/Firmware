@@ -84,7 +84,7 @@ float ECL_RollController::control_bodyrate(const float dt, const ECL_ControlData
 
 	/*if (!ctl_data.lock_integrator && _k_i > 0.0f) {
 
-		/* Integral term scales with 1/IAS^2 */
+		// Integral term scales with 1/IAS^2 
 	//	float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler;
 
 		/*
