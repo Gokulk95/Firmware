@@ -79,37 +79,53 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 		return math::constrain(_last_output, -1.0f, 1.0f);
 	}
 
-	float k_d = _k_ff;
+
 
 	/* Calculate the error */
 	float pitch_error = ctl_data.pitch_setpoint - ctl_data.pitch;
 
 	/* Calculate body angular rate error */
-	_rate_error = _bodyrate_setpoint - ctl_data.body_y_rate;
+	_rate_error = _bodyrate_setpoint - ctl_data.body_y_rate;// TASL comment: Commanded pitch rate assumed zero in the model. Should this be updated?
 
 	if (!ctl_data.lock_integrator && _k_i > 0.0f) {
 
 		/* Integral term scales with 1/IAS^2 */
-		float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler;
+		/* float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler; */
 
-		id = pitch_error * dt;
+		float id = pitch_error * dt;// Updated on 01 Oct 2020, to match the model (TASL Pitch controller does not use rates for integrator)
 
 		/*
 		 * anti-windup: do not allow integrator to increase if actuator is at limit
 		 */
-		if (_last_output < -1.0f) {
+	//	 Removed since Anti-Windup is not used for the pitch controller's integrator
+	//	if (_last_output < -1.0f) {
 			/* only allow motion to center: increase value */
-			id = math::max(id, 0.0f);
+		/*	id = math::max(id, 0.0f);
 
 		} else if (_last_output > 1.0f) {
 			/* only allow motion to center: decrease value */
-			id = math::min(id, 0.0f);
+	//		id = math::min(id, 0.0f);
+	//	}
+		/*
+		/* add and constrain */
+		/*_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);*/
+		// Updated on 12 Oct 2020 to add reset logic with large rate error
+                float rate_limit=0.087f;
+
+		if(_rate_error>rate_limit) {
+			_counter_reset_tasl++;
+		}
+		else{
+			_counter_reset_tasl=0;
 		}
 
-		/* add and constrain */
-		_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);
-	}
 
+		_integrator = _integrator + id * _k_i;// Updated on 12th Oct 2020, To match the model (No integrator limiter used by TASL)
+
+		if(_counter_reset_tasl >= 4) {
+			_integrator = 0;
+		}
+		// End of update
 	/* Apply PI rate controller and store non-limited output */
 	/* FF terms scales with 1/TAS and P,I with 1/IAS^2 */
 /*	_last_output = _bodyrate_setpoint * _k_ff * ctl_data.scaler +
@@ -120,7 +136,7 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 //rtu_Ts * rtu_Input + rtu_Prev_Op
 
 
-	_last_output = _k_p * pitch_error + _k_i * _integrator + k_d * _rate_error;
+	_last_output = _k_p * pitch_error + _k_i * _integrator + _k_ff * _rate_error;
 
 	return math::constrain(_last_output, -1.0f, 1.0f);
 }
