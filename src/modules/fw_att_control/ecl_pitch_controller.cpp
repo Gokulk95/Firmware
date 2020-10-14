@@ -103,7 +103,7 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 		/*	id = math::max(id, 0.0f);
 
 		} else if (_last_output > 1.0f) {
-			/* only allow motion to center: decrease value */
+			// only allow motion to center: decrease value 
 	//		id = math::min(id, 0.0f);
 	//	}
 		/*
