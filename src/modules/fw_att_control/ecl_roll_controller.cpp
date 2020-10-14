@@ -74,37 +74,52 @@ float ECL_RollController::control_bodyrate(const float dt, const ECL_ControlData
 
 		return math::constrain(_last_output, -1.0f, 1.0f);
 	}
-
+	_bodyrate_setpoint=0; // Updated on 13th Oct 2020, since commanded p is always zero for TASL Control
 	/* Calculate body angular rate error */
 	_rate_error = _bodyrate_setpoint - ctl_data.body_x_rate;
 
-	if (!ctl_data.lock_integrator && _k_i > 0.0f) {
+	float roll_error = ctl_data.roll_setpoint - ctl_data.roll;
+	float id = roll_error * dt ;
+
+
+	/*if (!ctl_data.lock_integrator && _k_i > 0.0f) {
 
 		/* Integral term scales with 1/IAS^2 */
-		float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler;
+	//	float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler;
 
 		/*
-		 * anti-windup: do not allow integrator to increase if actuator is at limit
+		 * anti-windup: Do not allow integrator to increase if actuator is at limit
 		 */
-		if (_last_output < -1.0f) {
+	//	if (_last_output < -1.0f) {
 			/* only allow motion to center: increase value */
-			id = math::max(id, 0.0f);
+	//		id = math::max(id, 0.0f);
 
-		} else if (_last_output > 1.0f) {
+	//	} else if (_last_output > 1.0f) {
 			/* only allow motion to center: decrease value */
-			id = math::min(id, 0.0f);
-		}
+	//		id = math::min(id, 0.0f);
+	//	}
 
 		/* add and constrain */
-		_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);
-	}
+		// _integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max); Commented since saturation is not implem
+	//}
+	float rate_limit=0.087f;
 
+		if(_rate_error>rate_limit) {
+			_counter_reset_tasl++;
+		}
+		else{
+			_counter_reset_tasl=0;
+		}
+	_integrator = _integrator + id *_k_i;
+	if(_counter_reset_tasl >= 4) {
+			_integrator = 0;
+		}
 	/* Apply PI rate controller and store non-limited output */
 	/* FF terms scales with 1/TAS and P,I with 1/IAS^2 */
-	_last_output = _bodyrate_setpoint * _k_ff * ctl_data.scaler +
+	/*_last_output = _bodyrate_setpoint * _k_ff * ctl_data.scaler +
 		       _rate_error * _k_p * ctl_data.scaler * ctl_data.scaler
-		       + _integrator;
-
+		       + _integrator;*/
+	_last_output = _k_p * roll_error + _k_i * _integrator + _k_ff * _rate_error;
 	return math::constrain(_last_output, -1.0f, 1.0f);
 }
 
