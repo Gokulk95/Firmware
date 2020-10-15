@@ -63,7 +63,8 @@ ECL_Controller::ECL_Controller() :
 	_integrator(0.0f),
 	_rate_error(0.0f),
 	_rate_setpoint(0.0f),
-	_bodyrate_setpoint(0.0f)
+	_bodyrate_setpoint(0.0f),
+	_counter_reset_tasl(0)   //Updated on 12th October 2020 to add reset logic
 {
 }
 
