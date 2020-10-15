@@ -106,7 +106,7 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 			// only allow motion to center: decrease value 
 	//		id = math::min(id, 0.0f);
 	//	}
-		/*
+		
 		/* add and constrain */
 		/*_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);*/
 		// Updated on 12 Oct 2020 to add reset logic with large rate error
