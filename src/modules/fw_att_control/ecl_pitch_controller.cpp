@@ -107,7 +107,7 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 	//		id = math::min(id, 0.0f);
 	//	}
 		
-		/* add and constrain */
+	 //add and constrain 
 		/*_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);*/
 		// Updated on 12 Oct 2020 to add reset logic with large rate error
                 float rate_limit=0.087f;
