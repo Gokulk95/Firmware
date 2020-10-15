@@ -113,5 +113,6 @@ protected:
 	float _rate_error;
 	float _rate_setpoint;
 	float _bodyrate_setpoint;
+	float _counter_reset_tasl;
 	float constrain_airspeed(float airspeed, float minspeed, float maxspeed);
 };
