@@ -87,7 +87,6 @@ float ECL_RollController::control_bodyrate(const float dt, const ECL_ControlData
 		// Integral term scales with 1/IAS^2 
 	//	float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler;
 
-		/*
 		 * anti-windup: Do not allow integrator to increase if actuator is at limit
 		 */
 	//	if (_last_output < -1.0f) {
