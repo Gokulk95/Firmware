@@ -66,7 +66,8 @@ ECL_Controller::ECL_Controller() :
 	_bodyrate_setpoint(0.0f),
 	_counter_reset_tasl(0),   //Updated on 12th October 2020 to add reset logic
 	_cur_wash_out(0.0f),      //Updated on 16th October 2020 for yaw controller
-	_yaw_damp_out(0.0f)      //Updated on 16th October 2020 for yaw controller
+	_yaw_damp_out(0.0f),      //Updated on 16th October 2020 for yaw controller
+	_last_input(0.0f)
 {
 }
 

@@ -116,5 +116,6 @@ protected:
 	float _counter_reset_tasl;
 	float _cur_wash_out;
 	float _yaw_damp_out;
+	float _last_input;
 	float constrain_airspeed(float airspeed, float minspeed, float maxspeed);
 };

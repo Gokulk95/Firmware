@@ -113,6 +113,7 @@ float ECL_YawController::control_bodyrate(const float dt, const ECL_ControlData 
 
 	float w_in = 0.9871f;
 	float w_out = 0.9792f;
+	float rud_int_windup = _k_i/_k_p;
 
 	_cur_wash_out = ctl_data.body_z_rate*w_in - _cur_wash_out*w_in + _last_input*w_out;
 
@@ -120,9 +121,9 @@ float ECL_YawController::control_bodyrate(const float dt, const ECL_ControlData 
 
 	_yaw_damp_out = (_rate_error*_k_i + rud_int_windup*(_last_output - _yaw_damp_out)) + _rate_error*_k_p ;
 
-	_last_output = math::constrain(yaw_damp_out,-1.0f,1.0f);
+	_last_output = math::constrain(_yaw_damp_out,-1.0f,1.0f);
 
-	_yaw_damp_out = ctl_data.body_z_rate;
+	_last_input = ctl_data.body_z_rate;
 
 
 
