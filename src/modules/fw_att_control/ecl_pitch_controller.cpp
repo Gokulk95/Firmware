@@ -80,19 +80,19 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 	}
 
 
-
+	_bodyrate_setpoint=0; // Updated on 15th Oct 2020, since commanded q is always zero for TASL Control
 	/* Calculate the error */
 	float pitch_error = ctl_data.pitch_setpoint - ctl_data.pitch;
 
 	/* Calculate body angular rate error */
 	_rate_error = _bodyrate_setpoint - ctl_data.body_y_rate;// TASL comment: Commanded pitch rate assumed zero in the model. Should this be updated?
 
-	if (!ctl_data.lock_integrator && _k_i > 0.0f) {
+	//if (!ctl_data.lock_integrator && _k_i > 0.0f) {
 
 		/* Integral term scales with 1/IAS^2 */
 		/* float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler; */
 
-		float id = pitch_error * dt;// Updated on 01 Oct 2020, to match the model (TASL Pitch controller does not use rates for integrator)
+		//float id = pitch_error * dt;// Updated on 01 Oct 2020, to match the model (TASL Pitch controller does not use rates for integrator)
 
 		/*
 		 * anti-windup: do not allow integrator to increase if actuator is at limit
@@ -103,12 +103,12 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 		/*	id = math::max(id, 0.0f);
 
 		} else if (_last_output > 1.0f) {
-			// only allow motion to center: decrease value 
+			// only allow motion to center: decrease value
 	//		id = math::min(id, 0.0f);
 	//	}
-		
-	 //add and constrain 
-		/*_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);*/
+
+	 //add and constrain
+		//_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);
 		// Updated on 12 Oct 2020 to add reset logic with large rate error
                 float rate_limit=0.087f;
 
@@ -126,9 +126,9 @@ float ECL_PitchController::control_bodyrate(const float dt, const ECL_ControlDat
 			_integrator = 0;
 		}
 		// End of update
-	/* Apply PI rate controller and store non-limited output */
-	/* FF terms scales with 1/TAS and P,I with 1/IAS^2 */
-/*	_last_output = _bodyrate_setpoint * _k_ff * ctl_data.scaler +
+	 Apply PI rate controller and store non-limited output 
+	 FF terms scales with 1/TAS and P,I with 1/IAS^2 
+	_last_output = _bodyrate_setpoint * _k_ff * ctl_data.scaler +
 		       _rate_error * _k_p * ctl_data.scaler * ctl_data.scaler
 		       + _integrator;
 */

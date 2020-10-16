@@ -108,36 +108,51 @@ float ECL_YawController::control_bodyrate(const float dt, const ECL_ControlData 
 
 		return math::constrain(_last_output, -1.0f, 1.0f);
 	}
-
+	_bodyrate_setpoint=0; // Updated on 15th Oct 2020, since commanded r is always zero for TASL Control
 	/* Calculate body angular rate error */
-	_rate_error = _bodyrate_setpoint - ctl_data.body_z_rate;
 
-	if (!ctl_data.lock_integrator && _k_i > 0.0f) {
+	float w_in = 0.9871f;
+	float w_out = 0.9792f;
 
-		/* Integral term scales with 1/IAS^2 */
-		float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler;
+	_cur_wash_out = ctl_data.body_z_rate*w_in - _cur_wash_out*w_in + _last_input*w_out;
 
-		/*
-		 * anti-windup: do not allow integrator to increase if actuator is at limit
-		 */
-		if (_last_output < -1.0f) {
-			/* only allow motion to center: increase value */
-			id = math::max(id, 0.0f);
+	_rate_error = _bodyrate_setpoint - _cur_wash_out;
 
-		} else if (_last_output > 1.0f) {
-			/* only allow motion to center: decrease value */
-			id = math::min(id, 0.0f);
-		}
+	_yaw_damp_out = (_rate_error*_k_i + rud_int_windup*(_last_output - _yaw_damp_out)) + _rate_error*_k_p ;
 
-		/* add and constrain */
-		_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);
-	}
+	_last_output = math::constrain(yaw_damp_out,-1.0f,1.0f);
+
+	_yaw_damp_out = ctl_data.body_z_rate;
+
+
+
+	// if (!ctl_data.lock_integrator && _k_i > 0.0f) {
+
+	// 	/* Integral term scales with 1/IAS^2 */
+	// 	float id = _rate_error * dt * ctl_data.scaler * ctl_data.scaler;
+
+	// 	/*
+	// 	 * anti-windup: do not allow integrator to increase if actuator is at limit
+	// 	 */
+	// 	if (_last_output < -1.0f) {
+	// 		/* only allow motion to center: increase value */
+	// 		id = math::max(id, 0.0f);
+
+	// 	} else if (_last_output > 1.0f) {
+	// 		/* only allow motion to center: decrease value */
+	// 		id = math::min(id, 0.0f);
+	// 	}
+
+	// 	/* add and constrain */
+	// 	_integrator = math::constrain(_integrator + id * _k_i, -_integrator_max, _integrator_max);
+	// }
 
 	/* Apply PI rate controller and store non-limited output */
 	/* FF terms scales with 1/TAS and P,I with 1/IAS^2 */
-	_last_output = _bodyrate_setpoint * _k_ff * ctl_data.scaler +
+/* 	_last_output = _bodyrate_setpoint * _k_ff * ctl_data.scaler +
 		       _rate_error * _k_p * ctl_data.scaler * ctl_data.scaler
-		       + _integrator;
+		       + _integrator; */
+
 
 	return math::constrain(_last_output, -1.0f, 1.0f);
 }
